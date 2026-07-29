@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus, GraduationCap, Mic, Award, BookOpen, Lightbulb, Flame } from 'lucide-react';
-import { getSubmissions, getGamification, getSuggestions } from '../lib/api';
+import { getSubmissions, getGamification, getSuggestions, acceptSuggestion, rejectSuggestion } from '../lib/api';
 import { getProfessorName } from '../lib/device';
 
 function renderTypeIcon(tipo: string, size = 20, color = "#fff") {
@@ -102,19 +102,51 @@ export default function MainScreen() {
         </section>
       )}
 
-      {suggestions.length > 0 && (
+      {suggestions.filter(s => s.status === 'pending' || s.status === 'accepted').length > 0 && (
         <section className="suggestions-section">
           <h2 style={{ fontSize: '16px', fontWeight: 700, margin: '16px 0 12px' }}>Sugestões da Coordenação</h2>
-          {suggestions.map((sug) => (
+          {suggestions.filter(s => s.status === 'pending' || s.status === 'accepted').map((sug) => (
             <div key={sug.id} className="suggestion-card">
               <h4>{sug.title}</h4>
               {sug.description && <p>{sug.description}</p>}
-              <button 
-                className="suggestion-action"
-                onClick={() => navigate('/new', { state: { suggestion: sug } })}
-              >
-                Registrar
-              </button>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                {sug.status === 'pending' ? (
+                  <>
+                    <button
+                      className="suggestion-action"
+                      style={{ flex: 1 }}
+                      onClick={async () => {
+                        try {
+                          await acceptSuggestion(sug.id);
+                          setSuggestions(prev => prev.map(s => s.id === sug.id ? { ...s, status: 'accepted' } : s));
+                        } catch (e) { console.error(e); }
+                      }}
+                    >
+                      Aceitar
+                    </button>
+                    <button
+                      className="suggestion-action"
+                      style={{ flex: 1, backgroundColor: '#6B7280' }}
+                      onClick={async () => {
+                        try {
+                          await rejectSuggestion(sug.id);
+                          setSuggestions(prev => prev.filter(s => s.id !== sug.id));
+                        } catch (e) { console.error(e); }
+                      }}
+                    >
+                      Recusar
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className="suggestion-action"
+                    style={{ flex: 1 }}
+                    onClick={() => navigate('/new', { state: { suggestion: sug } })}
+                  >
+                    Registrar Formação
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </section>

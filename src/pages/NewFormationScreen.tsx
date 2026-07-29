@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, GraduationCap, Mic, Award, BookOpen, Lightbulb } from 'lucide-react';
-import { createSubmission, updateSubmission, getGamification } from '../lib/api';
+import { createSubmission, updateSubmission, getGamification, acceptSuggestion } from '../lib/api';
 
 const TYPES = [
   { value: 'curso', label: 'Curso', Icon: GraduationCap },
@@ -17,8 +17,18 @@ export default function NewFormationScreen() {
   const suggestion = location.state?.suggestion;
   const editSubmission = location.state?.editSubmission;
 
+  const normalizeTipo = (t: string): string => {
+    const map: Record<string, string> = {
+      'Curso': 'curso', 'Evento': 'evento', 'Produção Acadêmica': 'producao',
+      'Certificação': 'certificacao', 'Capacitação': 'capacitacao',
+      'curso': 'curso', 'evento': 'evento', 'producao': 'producao',
+      'certificacao': 'certificacao', 'capacitacao': 'capacitacao', 'outro': 'outro',
+    };
+    return map[t] || t.toLowerCase();
+  };
+
   const [step, setStep] = useState(suggestion || editSubmission ? 2 : 1);
-  const [tipo, setTipo] = useState(suggestion ? suggestion.tipo : editSubmission ? editSubmission.tipo : '');
+  const [tipo, setTipo] = useState(suggestion ? normalizeTipo(suggestion.tipo) : editSubmission ? editSubmission.tipo : '');
   const [titulo, setTitulo] = useState(suggestion ? suggestion.title : editSubmission ? editSubmission.titulo : '');
   const [dataConclusao, setDataConclusao] = useState(editSubmission?.data_conclusao ? editSubmission.data_conclusao.substring(0, 10) : '');
   const [cargaHoraria, setCargaHoraria] = useState(editSubmission?.carga_horaria ? String(editSubmission.carga_horaria) : '');
@@ -96,6 +106,15 @@ export default function NewFormationScreen() {
         gamification = await getGamification();
       } catch (gErr) {
         console.warn("Failed to fetch gamification data", gErr);
+      }
+
+      // Mark suggestion as completed if this was from a suggestion
+      if (suggestion?.id) {
+        try {
+          await acceptSuggestion(suggestion.id);
+        } catch (e) {
+          console.warn("Failed to mark suggestion as completed", e);
+        }
       }
 
       navigate('/celebration', { state: { rawData: res, submission: res?.submission || res, gamification } });

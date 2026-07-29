@@ -148,3 +148,19 @@ export async function getSuggestions(): Promise<Suggestion[]> {
   return res.data;
 }
 
+export async function acceptSuggestion(id: number): Promise<Suggestion> {
+  const res = await request<ApiResponse<Suggestion>>(`/suggestions/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ status: 'accepted' }),
+  });
+  return res.data;
+}
+
+export async function rejectSuggestion(id: number): Promise<Suggestion> {
+  const res = await request<ApiResponse<Suggestion>>(`/suggestions/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ status: 'rejected' }),
+  });
+  return res.data;
+}
+

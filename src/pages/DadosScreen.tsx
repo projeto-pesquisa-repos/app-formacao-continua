@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart2, Zap, Trophy, Clock, TrendingUp } from 'lucide-react';
+import { BarChart2, Clock, TrendingUp } from 'lucide-react';
 import {
   getGamification,
   getSubmissions,
@@ -134,7 +134,6 @@ export default function DadosScreen() {
       <header className="header">
         <div className="header-greeting">
           <h1>Dados & Estatísticas</h1>
-          <p>Acompanhamento de desempenho</p>
         </div>
         <div className="header-icon">
           <BarChart2 size={28} color="#FFFFFF" />
@@ -147,12 +146,6 @@ export default function DadosScreen() {
         <div className="dados-content">
           {/* Total de XP de Hoje Prominent Card */}
           <div className="hero-xp-card">
-            <div className="hero-xp-header">
-              <div className="hero-xp-icon">
-                <Zap size={24} color="#fff" />
-              </div>
-              <span className="hero-xp-title">Total de XP de hoje</span>
-            </div>
             <div className="hero-xp-value">
               +{xpHoje} <span className="hero-xp-unit">XP</span>
             </div>
@@ -175,15 +168,7 @@ export default function DadosScreen() {
               </div>
             </div>
 
-            <div className="metric-card">
-              <div className="metric-icon-box amber">
-                <Trophy size={20} color="#F59E0B" />
-              </div>
-              <div className="metric-info">
-                <span className="metric-label">Rank diário de XP</span>
-                <strong className="metric-value">{rankDisplay}</strong>
-              </div>
-            </div>
+
 
             <div className="metric-card">
               <div className="metric-icon-box navy">
@@ -200,7 +185,6 @@ export default function DadosScreen() {
           <div className="chart-card">
             <div className="chart-card-header">
               <h3>XP nos Últimos 7 Dias</h3>
-              <span className="chart-badge">Média: {avgXP} XP/dia</span>
             </div>
 
             <div className="svg-chart-container">
