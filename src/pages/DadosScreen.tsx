@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart2, Clock, TrendingUp } from 'lucide-react';
+import { BarChart2, Clock, TrendingUp, Trophy } from 'lucide-react';
 import {
   getGamification,
   getSubmissions,
@@ -97,19 +97,6 @@ export default function DadosScreen() {
   // Total XP
   const totalXP = gamification?.xp ?? 0;
 
-  // Calculate Rank
-  let rankDisplay = '#1';
-  if (leaderboard.length > 0) {
-    const userEntry = leaderboard.find(
-      (e) => e.name.toLowerCase() === professorName.toLowerCase()
-    );
-    if (userEntry) {
-      rankDisplay = `#${userEntry.rank}`;
-    } else {
-      const higherCount = leaderboard.filter((e) => e.xp > totalXP).length;
-      rankDisplay = `#${higherCount + 1}`;
-    }
-  }
 
   // Total Horas de Formação
   const totalHoras = submissions.reduce(
