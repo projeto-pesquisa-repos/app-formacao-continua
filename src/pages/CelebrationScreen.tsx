@@ -5,18 +5,24 @@ import { CheckCircle2 } from 'lucide-react';
 export default function CelebrationScreen() {
   const navigate = useNavigate();
   const location = useLocation();
-  const submission = (location.state as any)?.submission;
+  const state = (location.state as any) || {};
+  const rawData = state.submission;
+
   const [phase, setPhase] = useState<1 | 2>(1);
 
-  const xpEarned = 50;
-  const previousXp = 240;
-  const totalXp = previousXp + xpEarned;
-  const nextLevelXp = 300;
+  // Extract dynamic data from payload
+  const submission = rawData?.submission || (rawData?.id ? rawData : null);
+  const xpEarned = rawData?.xpAwarded ?? state.xpAwarded ?? 50;
+  const newBadges: Array<{ name: string; description?: string }> = 
+    rawData?.newBadges ?? state.newBadges ?? [];
+  const gamification = rawData?.gamification ?? state.gamification;
 
-  const newBadges = [
-    { name: 'Mestre dos Cursos', description: 'Registrou 5 cursos' },
-    { name: 'Estudo Diário', description: '24h totais de estudos' },
-  ];
+  const totalXp = gamification?.xp ?? 50;
+  const previousXp = Math.max(0, totalXp - xpEarned);
+  const nextLevelXp = gamification?.nextLevelThreshold ?? 300;
+
+  const prevPct = Math.min(100, (previousXp / nextLevelXp) * 100);
+  const newPct = Math.min(100 - prevPct, (xpEarned / nextLevelXp) * 100);
 
   if (phase === 1) {
     return (
@@ -27,7 +33,7 @@ export default function CelebrationScreen() {
           </div>
           <h1 className="celebration-title">Obrigado!</h1>
           <p className="celebration-subtitle">Formação enviada!</p>
-          <div className="celebration-xp">{xpEarned} xp</div>
+          <div className="celebration-xp">+{xpEarned} XP</div>
           <button
             className="celebration-continue-btn"
             onClick={() => setPhase(2)}
@@ -49,16 +55,16 @@ export default function CelebrationScreen() {
         <div className="celebration-xp-section">
           <div className="celebration-xp-label">
             <span>{submission?.tipo?.toUpperCase() || 'FORMAÇÃO'}</span>
-            <span className="celebration-xp-numbers">{previousXp} + {xpEarned}</span>
+            <span className="celebration-xp-numbers">{previousXp} + {xpEarned} XP</span>
           </div>
           <div className="celebration-progress-bar">
             <div
               className="celebration-progress-previous"
-              style={{ width: `${(previousXp / nextLevelXp) * 100}%` }}
+              style={{ width: `${prevPct}%` }}
             />
             <div
               className="celebration-progress-new"
-              style={{ width: `${(xpEarned / nextLevelXp) * 100}%`, left: `${(previousXp / nextLevelXp) * 100}%` }}
+              style={{ width: `${newPct}%`, left: `${prevPct}%` }}
             />
           </div>
         </div>
@@ -69,14 +75,14 @@ export default function CelebrationScreen() {
               <div key={i} className="celebration-badge-item" style={{ animationDelay: `${0.3 + i * 0.15}s` }}>
                 <span className="celebration-badge-label">Nova medalha!</span>
                 <strong>{badge.name}</strong>
-                <span className="celebration-badge-desc">{badge.description}</span>
+                {badge.description && <span className="celebration-badge-desc">{badge.description}</span>}
               </div>
             ))}
           </div>
         )}
 
         <div className="celebration-total-row">
-          <div className="celebration-total-xp">{totalXp} xp</div>
+          <div className="celebration-total-xp">{totalXp} XP</div>
         </div>
 
         <button
@@ -89,3 +95,4 @@ export default function CelebrationScreen() {
     </div>
   );
 }
+

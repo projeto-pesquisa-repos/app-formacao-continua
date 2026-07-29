@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus, GraduationCap, Mic, Award, BookOpen, Lightbulb, Flame } from 'lucide-react';
 import { getSubmissions, getGamification, getSuggestions } from '../lib/api';
 import { getProfessorName } from '../lib/device';
@@ -37,30 +37,40 @@ function formatDate(dateStr: string | null): string {
 
 export default function MainScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [gamification, setGamification] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const professorName = getProfessorName();
 
+  const fetchData = async () => {
+    try {
+      const [subsData, gamificationData, suggestionsData] = await Promise.all([
+        getSubmissions(),
+        getGamification(),
+        getSuggestions().catch(() => []) // fail gracefully
+      ]);
+      setSubmissions(subsData);
+      setGamification(gamificationData);
+      setSuggestions(suggestionsData);
+    } catch (error) {
+      console.error('Erro ao carregar dados', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [subsData, gamificationData, suggestionsData] = await Promise.all([
-          getSubmissions(),
-          getGamification(),
-          getSuggestions().catch(() => []) // fail gracefully
-        ]);
-        setSubmissions(subsData);
-        setGamification(gamificationData);
-        setSuggestions(suggestionsData);
-      } catch (error) {
-        console.error('Erro ao carregar dados', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
+  }, [location.key]);
+
+  useEffect(() => {
+    const onFocus = () => {
+      fetchData();
+    };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
   }, []);
 
   return (
@@ -121,14 +131,19 @@ export default function MainScreen() {
             {submissions.map((submission) => (
               <div 
                 key={submission.id} 
-                className="formation-card"
+                className={`formation-card ${submission.status === 'rejeitado' ? 'rejected-card' : ''}`}
                 onClick={() => navigate(`/detail/${submission.id}`)}
               >
                 <div className="card-icon" style={{ backgroundColor: getTypeColor(submission.tipo) }}>
                   {renderTypeIcon(submission.tipo, 22, "#fff")}
                 </div>
                 <div className="card-content">
-                  <strong>{submission.titulo}</strong>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <strong>{submission.titulo}</strong>
+                    {submission.status === 'rejeitado' && (
+                      <span className="status-badge rejeitado">Rejeitado</span>
+                    )}
+                  </div>
                   <span>{formatDate(submission.data_conclusao)}</span>
                 </div>
                 <div className="card-xp">
@@ -146,3 +161,4 @@ export default function MainScreen() {
     </div>
   );
 }
+

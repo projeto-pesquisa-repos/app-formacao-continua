@@ -167,6 +167,10 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
+.rejected-card {
+  border-left: 4px solid #EF4444;
+}
+
 .card-icon {
   width: 44px;
   height: 44px;
@@ -548,6 +552,56 @@ body {
 .detail-section p {
   font-size: 15px;
 }
+
+/* Rejection Callout in DetailScreen */
+.rejection-callout {
+  background-color: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  padding: 16px;
+  margin-bottom: 20px;
+  border-radius: 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rejection-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--error-red);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.rejection-body {
+  font-size: 14px;
+  color: #991B1B;
+  line-height: 1.4;
+}
+
+.resubmit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background-color: var(--error-red);
+  color: #ffffff;
+  border: none;
+  border-radius: 0px;
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.resubmit-btn:hover {
+  opacity: 0.9;
+}
+
 
 /* ===== CELEBRATION ===== */
 

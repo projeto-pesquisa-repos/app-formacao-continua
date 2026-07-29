@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, GraduationCap, Mic, Award, BookOpen, Lightbulb } from 'lucide-react';
-import { createSubmission } from '../lib/api';
+import { createSubmission, updateSubmission } from '../lib/api';
 
 const TYPES = [
   { value: 'curso', label: 'Curso', Icon: GraduationCap },
@@ -15,16 +15,17 @@ export default function NewFormationScreen() {
   const navigate = useNavigate();
   const location = useLocation();
   const suggestion = location.state?.suggestion;
+  const editSubmission = location.state?.editSubmission;
 
-  const [step, setStep] = useState(suggestion ? 2 : 1);
-  const [tipo, setTipo] = useState(suggestion ? suggestion.tipo : '');
-  const [titulo, setTitulo] = useState(suggestion ? suggestion.title : '');
-  const [dataConclusao, setDataConclusao] = useState('');
-  const [cargaHoraria, setCargaHoraria] = useState('');
-  const [instituicaoPromotora, setInstituicaoPromotora] = useState('');
-  const [tipoProducao, setTipoProducao] = useState('Artigo');
-  const [urlCertificado, setUrlCertificado] = useState('');
-  const [descricao, setDescricao] = useState(suggestion?.description || '');
+  const [step, setStep] = useState(suggestion || editSubmission ? 2 : 1);
+  const [tipo, setTipo] = useState(suggestion ? suggestion.tipo : editSubmission ? editSubmission.tipo : '');
+  const [titulo, setTitulo] = useState(suggestion ? suggestion.title : editSubmission ? editSubmission.titulo : '');
+  const [dataConclusao, setDataConclusao] = useState(editSubmission?.data_conclusao ? editSubmission.data_conclusao.substring(0, 10) : '');
+  const [cargaHoraria, setCargaHoraria] = useState(editSubmission?.carga_horaria ? String(editSubmission.carga_horaria) : '');
+  const [instituicaoPromotora, setInstituicaoPromotora] = useState(editSubmission?.instituicao_promotora || '');
+  const [tipoProducao, setTipoProducao] = useState(editSubmission?.tipo_producao || 'Artigo');
+  const [urlCertificado, setUrlCertificado] = useState(editSubmission?.url_certificado || '');
+  const [descricao, setDescricao] = useState(suggestion?.description || editSubmission?.descricao || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [arquivo, setArquivo] = useState<File | null>(null);
@@ -47,6 +48,10 @@ export default function NewFormationScreen() {
       data_conclusao: dataConclusao,
     };
 
+    if (editSubmission) {
+      payload.status = 'pendente';
+    }
+
     if (['curso', 'evento', 'certificacao', 'outro'].includes(tipo)) {
       payload.carga_horaria = Number(cargaHoraria);
     }
@@ -61,19 +66,31 @@ export default function NewFormationScreen() {
     }
 
     try {
-      let submission;
-      if (arquivo) {
-        const formData = new FormData();
-        Object.entries(payload).forEach(([key, value]) => {
-          if (value !== null && value !== undefined) formData.append(key, String(value));
-        });
-        formData.append('arquivo', arquivo);
-        
-        submission = await createSubmission(formData);
+      let res;
+      if (editSubmission) {
+        if (arquivo) {
+          const formData = new FormData();
+          Object.entries(payload).forEach(([key, value]) => {
+            if (value !== null && value !== undefined) formData.append(key, String(value));
+          });
+          formData.append('arquivo', arquivo);
+          res = await updateSubmission(editSubmission.id, formData);
+        } else {
+          res = await updateSubmission(editSubmission.id, payload);
+        }
       } else {
-        submission = await createSubmission(payload);
+        if (arquivo) {
+          const formData = new FormData();
+          Object.entries(payload).forEach(([key, value]) => {
+            if (value !== null && value !== undefined) formData.append(key, String(value));
+          });
+          formData.append('arquivo', arquivo);
+          res = await createSubmission(formData);
+        } else {
+          res = await createSubmission(payload);
+        }
       }
-      navigate('/celebration', { state: { submission } });
+      navigate('/celebration', { state: { rawData: res, submission: res?.submission || res } });
     } catch (err) {
       setError('Erro ao registrar formação. Tente novamente.');
       setLoading(false);
@@ -87,11 +104,12 @@ export default function NewFormationScreen() {
       <header className="new-header">
         <button 
           className="back-button" 
-          onClick={() => (step === 1 ? navigate('/') : setStep(1))} 
+          onClick={() => (step === 1 ? navigate('/') : editSubmission ? navigate(-1) : setStep(1))} 
           type="button"
         >
           <ArrowLeft size={24} />
         </button>
+        {editSubmission && <h2 style={{ fontSize: '18px', fontWeight: 700, margin: 0, color: '#fff' }}>Editar Formação</h2>}
       </header>
 
       <div className="step-indicator">
@@ -126,7 +144,7 @@ export default function NewFormationScreen() {
 
       {step === 2 && (
         <div className="step-2">
-          <h2>Detalhes da Formação</h2>
+          <h2>{editSubmission ? 'Editar Formação Rejeitada' : 'Detalhes da Formação'}</h2>
           
           {selectedTypeInfo && (
             <div className="selected-type-chip">
@@ -247,7 +265,7 @@ export default function NewFormationScreen() {
             </div>
 
             <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Registrando...' : 'Registrar Formação'}
+              {loading ? 'Processando...' : editSubmission ? 'Atualizar e Reenviar' : 'Registrar Formação'}
             </button>
           </form>
         </div>
@@ -255,3 +273,4 @@ export default function NewFormationScreen() {
     </div>
   );
 }
+

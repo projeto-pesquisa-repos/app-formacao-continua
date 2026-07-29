@@ -208,7 +208,7 @@ export default function DadosScreen() {
                 {/* 7-day Average Dashed Reference Line */}
                 <line
                   x1={avgX}
-                  y1={18}
+                  y1={26}
                   x2={avgX}
                   y2={chartHeight - 15}
                   stroke="#2C5EAD"
@@ -217,7 +217,7 @@ export default function DadosScreen() {
                 />
                 <text
                   x={avgX}
-                  y={12}
+                  y={14}
                   textAnchor="middle"
                   fontSize="10"
                   fontWeight="700"
@@ -228,7 +228,7 @@ export default function DadosScreen() {
 
                 {/* Bars */}
                 {last7Days.map((d, idx) => {
-                  const y = 22 + idx * rowHeight;
+                  const y = 26 + idx * rowHeight;
                   const barWidth = Math.max(4, (d.xp / maxXP) * barMaxPx);
                   const isLastBar = idx === 6;
 
@@ -254,7 +254,7 @@ export default function DadosScreen() {
                         y={y}
                         width={barWidth}
                         height={18}
-                        rx={6}
+                        rx={0}
                         fill={isLastBar ? '#1591DC' : '#C4E2F5'}
                       />
 
@@ -278,6 +278,53 @@ export default function DadosScreen() {
               <span className="chart-legend-line" />
               <span>Linha pontilhada indica a média diária de 7 dias ({avgXP} XP).</span>
             </div>
+          </div>
+
+          {/* Leaderboard Section below Chart */}
+          <div className="chart-card leaderboard-section-card" style={{ marginTop: '16px' }}>
+            <div className="chart-card-header" style={{ marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Trophy size={20} color="#F59E0B" />
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700 }}>Leaderboard / Ranking</h3>
+              </div>
+              <span className="chart-badge">Classificação</span>
+            </div>
+
+            {leaderboard.length === 0 ? (
+              <p style={{ fontSize: '13px', color: '#6B7280', textAlign: 'center', margin: '16px 0' }}>
+                Nenhum dado de ranking disponível.
+              </p>
+            ) : (
+              <div className="ranking-list" style={{ padding: 0 }}>
+                {leaderboard.map((item) => {
+                  const isCurrent = item.name.toLowerCase() === professorName.toLowerCase();
+                  let rankClass = '';
+                  if (item.rank === 1) rankClass = 'gold';
+                  else if (item.rank === 2) rankClass = 'silver';
+                  else if (item.rank === 3) rankClass = 'bronze';
+
+                  return (
+                    <div
+                      key={item.id || item.rank}
+                      className={`ranking-row ${isCurrent ? 'current' : ''}`}
+                      style={{ borderRadius: '0px' }}
+                    >
+                      <div className={`rank-number ${rankClass}`}>#{item.rank}</div>
+                      <div className="rank-avatar" style={{ borderRadius: '0px' }}>
+                        {item.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="rank-info">
+                        <div className="rank-name">
+                          {item.name} {isCurrent && <span style={{ fontSize: '11px', color: '#1591DC' }}>(Você)</span>}
+                        </div>
+                        <div className="rank-xp">{item.xp} XP</div>
+                      </div>
+                      <div className="rank-level">Nível {item.level}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       )}
