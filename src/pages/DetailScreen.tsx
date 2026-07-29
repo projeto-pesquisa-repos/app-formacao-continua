@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, GraduationCap, Mic, Award, BookOpen, Lightbulb, AlertTriangle, Edit3 } from 'lucide-react';
-import { getSubmission } from '../lib/api';
+import { ArrowLeft, GraduationCap, Mic, Award, BookOpen, Lightbulb, AlertTriangle, Edit3, Trash2 } from 'lucide-react';
+import { getSubmission, deleteSubmission } from '../lib/api';
 import type { Submission } from '../lib/api';
 
 function renderTypeIcon(tipo: string, size = 36, color = "#1591DC") {
@@ -51,6 +51,21 @@ export default function DetailScreen() {
   if (!submission) return <div className="error">Formação não encontrada.</div>;
 
   const rejectionReason = submission.justificativa_rejeicao || submission.justificativa;
+
+  const handleDelete = async () => {
+    if (window.confirm('Tem certeza que deseja remover esta formação?')) {
+      try {
+        await deleteSubmission(submission.id);
+        navigate('/', { replace: true });
+      } catch (error) {
+        alert('Erro ao remover formação.');
+      }
+    }
+  };
+
+  const handleEdit = () => {
+    navigate('/new', { state: { editSubmission: submission } });
+  };
 
   return (
     <div className="detail-screen">
@@ -160,16 +175,30 @@ export default function DetailScreen() {
           {submission.arquivo_path && (
             <div className="info-section">
               <label>Comprovante</label>
-              <div className="file-box">
-                {submission.arquivo_path.match(/\.(jpeg|jpg|gif|png)$/i) ? (
-                  <img src={`https://be-formacao-continua.onrender.com/api/files/${submission.arquivo_nome}`} alt="Comprovante" style={{ maxWidth: '100%' }} />
+              <div className="image-carousel-container">
+                {submission.arquivo_nome.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                  <img className="carousel-image" src={`https://be-formacao-continua.onrender.com/api/files/${submission.arquivo_nome}`} alt="Comprovante" />
                 ) : (
-                  submission.arquivo_nome
+                  <div className="file-box">
+                    <p>{submission.arquivo_nome}</p>
+                    <a href={`https://be-formacao-continua.onrender.com/api/files/${submission.arquivo_nome}`} target="_blank" rel="noreferrer" className="text-primary-blue underline text-sm">Visualizar arquivo</a>
+                  </div>
                 )}
               </div>
             </div>
           )}
         </div>
+
+        {submission.status !== 'aprovado' && (
+          <div className="detail-actions">
+            <button className="action-btn edit-btn" onClick={handleEdit}>
+              <Edit3 size={18} /> Editar
+            </button>
+            <button className="action-btn delete-btn" onClick={handleDelete}>
+              <Trash2 size={18} /> Remover
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

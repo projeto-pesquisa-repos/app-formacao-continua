@@ -85,19 +85,27 @@ export async function getSubmission(id: number): Promise<Submission> {
 }
 
 export async function createSubmission(data: Record<string, unknown> | FormData): Promise<any> {
+  const isFormData = data instanceof FormData;
   const res = await request<ApiResponse<any>>('/submissions', {
     method: 'POST',
-    body: data instanceof FormData ? data : JSON.stringify(data),
-  });
+    body: isFormData ? data as FormData : JSON.stringify(data),
+  }, isFormData);
   return res.data;
 }
 
-export async function updateSubmission(id: string | number, data: Record<string, unknown> | FormData): Promise<any> {
+export async function updateSubmission(id: number, data: Record<string, unknown> | FormData): Promise<any> {
+  const isFormData = data instanceof FormData;
   const res = await request<ApiResponse<any>>(`/submissions/${id}`, {
     method: 'PUT',
-    body: data instanceof FormData ? data : JSON.stringify(data),
-  });
+    body: isFormData ? data as FormData : JSON.stringify(data),
+  }, isFormData);
   return res.data;
+}
+
+export async function deleteSubmission(id: number): Promise<void> {
+  await request(`/submissions/${id}`, {
+    method: 'DELETE',
+  });
 }
 
 export interface Badge {

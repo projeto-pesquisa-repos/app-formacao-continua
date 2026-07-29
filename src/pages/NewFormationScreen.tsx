@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, GraduationCap, Mic, Award, BookOpen, Lightbulb } from 'lucide-react';
-import { createSubmission, updateSubmission } from '../lib/api';
+import { createSubmission, updateSubmission, getGamification } from '../lib/api';
 
 const TYPES = [
   { value: 'curso', label: 'Curso', Icon: GraduationCap },
@@ -90,7 +90,15 @@ export default function NewFormationScreen() {
           res = await createSubmission(payload);
         }
       }
-      navigate('/celebration', { state: { rawData: res, submission: res?.submission || res } });
+      
+      let gamification = null;
+      try {
+        gamification = await getGamification();
+      } catch (gErr) {
+        console.warn("Failed to fetch gamification data", gErr);
+      }
+
+      navigate('/celebration', { state: { rawData: res, submission: res?.submission || res, gamification } });
     } catch (err) {
       setError('Erro ao registrar formação. Tente novamente.');
       setLoading(false);
