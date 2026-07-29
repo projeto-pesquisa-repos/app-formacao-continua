@@ -89,7 +89,7 @@ export async function createSubmission(data: Record<string, unknown> | FormData)
   const res = await request<ApiResponse<any>>('/submissions', {
     method: 'POST',
     body: isFormData ? data as FormData : JSON.stringify(data),
-  }, isFormData);
+  });
   return res.data;
 }
 
@@ -98,7 +98,7 @@ export async function updateSubmission(id: number, data: Record<string, unknown>
   const res = await request<ApiResponse<any>>(`/submissions/${id}`, {
     method: 'PUT',
     body: isFormData ? data as FormData : JSON.stringify(data),
-  }, isFormData);
+  });
   return res.data;
 }
 

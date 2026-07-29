@@ -197,7 +197,7 @@ export default function DetailScreen() {
             <div className="info-section">
               <label>Comprovante</label>
               <div className="image-carousel-container">
-                {submission.arquivo_nome.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                {submission.arquivo_nome?.match(/\.(jpeg|jpg|gif|png)$/i) ? (
                   <img className="carousel-image" src={`https://be-formacao-continua.onrender.com/api/files/${submission.arquivo_nome}`} alt="Comprovante" />
                 ) : (
                   <div className="file-box">

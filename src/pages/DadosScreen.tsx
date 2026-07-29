@@ -265,7 +265,7 @@ export default function DadosScreen() {
 
                       {/* XP Value Text */}
                       <text
-                        x={labelWidth + barWidth + 8}
+                        x={Math.max(labelWidth + barWidth + 8, avgX + 8)}
                         y={y + 13}
                         fontSize="11"
                         fontWeight="700"
