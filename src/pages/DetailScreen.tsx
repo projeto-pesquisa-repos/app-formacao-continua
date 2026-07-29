@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, GraduationCap, Mic, Award, BookOpen, Lightbulb, AlertTriangle, Edit3, Trash2 } from 'lucide-react';
+import { ArrowLeft, GraduationCap, Mic, Award, BookOpen, Lightbulb, AlertTriangle, Edit3, Trash2, MoreVertical } from 'lucide-react';
 import { getSubmission, deleteSubmission } from '../lib/api';
 import type { Submission } from '../lib/api';
 
@@ -30,6 +30,7 @@ export default function DetailScreen() {
   const navigate = useNavigate();
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [loading, setLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -69,11 +70,31 @@ export default function DetailScreen() {
 
   return (
     <div className="detail-screen">
-      <header className="detail-header">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          <ArrowLeft size={24} />
-        </button>
-        <h2>Detalhes da Formação</h2>
+      <header className="detail-header" style={{ justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button className="back-button" onClick={() => navigate(-1)}>
+            <ArrowLeft size={24} />
+          </button>
+          <h2>Detalhes da Formação</h2>
+        </div>
+        
+        {submission.status !== 'aprovado' && (
+          <div className="header-actions">
+            <button className="more-btn" onClick={() => setMenuOpen(!menuOpen)}>
+              <MoreVertical size={24} />
+            </button>
+            {menuOpen && (
+              <div className="dropdown-menu">
+                <button className="dropdown-item" onClick={handleEdit}>
+                  <Edit3 size={16} /> Editar
+                </button>
+                <button className="dropdown-item delete" onClick={handleDelete}>
+                  <Trash2 size={16} /> Remover
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       <div className="detail-content">
@@ -189,16 +210,6 @@ export default function DetailScreen() {
           )}
         </div>
 
-        {submission.status !== 'aprovado' && (
-          <div className="detail-actions">
-            <button className="action-btn edit-btn" onClick={handleEdit}>
-              <Edit3 size={18} /> Editar
-            </button>
-            <button className="action-btn delete-btn" onClick={handleDelete}>
-              <Trash2 size={18} /> Remover
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -71,7 +71,12 @@ export default function DadosScreen() {
 
     const daySubs = submissions.filter((sub) => {
       if (!sub.created_at) return false;
-      const subDate = new Date(sub.created_at);
+      // Convert "YYYY-MM-DD HH:MM:SS" to "YYYY-MM-DDTHH:MM:SSZ" to parse as UTC
+      let dateStr = sub.created_at;
+      if (dateStr.includes(' ') && !dateStr.includes('T')) {
+        dateStr = dateStr.replace(' ', 'T') + 'Z';
+      }
+      const subDate = new Date(dateStr);
       return isSameDay(subDate, d);
     });
 
