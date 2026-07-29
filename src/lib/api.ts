@@ -164,3 +164,11 @@ export async function rejectSuggestion(id: number): Promise<Suggestion> {
   return res.data;
 }
 
+export async function completeSuggestion(id: number): Promise<Suggestion> {
+  const res = await request<ApiResponse<Suggestion>>(`/suggestions/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ status: 'completed' }),
+  });
+  return res.data;
+}
+

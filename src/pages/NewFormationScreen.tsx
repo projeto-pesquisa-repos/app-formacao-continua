@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, GraduationCap, Mic, Award, BookOpen, Lightbulb } from 'lucide-react';
-import { createSubmission, updateSubmission, getGamification, acceptSuggestion } from '../lib/api';
+import { createSubmission, updateSubmission, getGamification, completeSuggestion } from '../lib/api';
 
 const TYPES = [
   { value: 'curso', label: 'Curso', Icon: GraduationCap },
@@ -111,7 +111,7 @@ export default function NewFormationScreen() {
       // Mark suggestion as completed if this was from a suggestion
       if (suggestion?.id) {
         try {
-          await acceptSuggestion(suggestion.id);
+          await completeSuggestion(suggestion.id);
         } catch (e) {
           console.warn("Failed to mark suggestion as completed", e);
         }
