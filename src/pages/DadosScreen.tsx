@@ -279,10 +279,6 @@ export default function DadosScreen() {
                 })}
               </svg>
             </div>
-            <div className="chart-footer">
-              <span className="chart-legend-line" />
-              <span>Linha pontilhada indica a média diária de 7 dias ({avgXP} XP).</span>
-            </div>
           </div>
 
           {/* Leaderboard Section below Chart */}

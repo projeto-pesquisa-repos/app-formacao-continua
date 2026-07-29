@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700&display=swap');
 
 :root {
   --font-family: 'Mulish', sans-serif;
@@ -1540,7 +1540,7 @@ body {
 }
 .badges-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 .badge-card {
@@ -1549,8 +1549,11 @@ body {
   border-radius: 0;
   padding: 16px;
   display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
 }
 .badge-icon-wrapper {
   width: 50px;
